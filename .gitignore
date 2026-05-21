@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+.env
+gtfs_data/*.txt
+gtfs_data/*.csv

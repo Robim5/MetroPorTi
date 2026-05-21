@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+asyncpg
+pydantic
+python-dotenv
+slowapi
+httpx
+pytest
+pytest-asyncio
+tzdata
