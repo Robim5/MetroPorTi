@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="MetroPorTi" width="180" />
+  <img src="assets/logo.png" alt="MetroPorTi" width="220" />
 </p>
 
 <h1 align="center">MetroPorTi</h1>
@@ -162,6 +162,15 @@ python -m pytest -q
 
 ---
 
+## Licença
+
+Este projeto está licenciado sob a **[MIT License](LICENSE)**.
+
+---
+
 <p align="center">
-  <sub>Feito com dados GTFS do Metro do Porto · FastAPI · Neon · Railway</sub>
+  <sub>
+    Dados GTFS do Metro do Porto (feed de 7 de abril de 2026) · FastAPI · Neon · Railway<br/>
+    Última atualização: 21 de maio de 2026
+  </sub>
 </p>
