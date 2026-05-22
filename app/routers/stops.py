@@ -71,7 +71,6 @@ async def search_stops(q: str = Query(..., min_length = 2, max_length = 100)):
             """
             SELECT stop_id, stop_name, stop_lat, stop_lon, zone_id
             FROM stops
-            # ilike para pesquisa sem distinguir maiusculas
             WHERE stop_name ILIKE '%' || $1 || '%'
             ORDER BY stop_name
             LIMIT 30
