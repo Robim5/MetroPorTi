@@ -77,3 +77,63 @@ class FareOut(BaseModel):
     destination_zone: Optional[str] = None
     price: Decimal
     currency_type: str
+
+
+class StopOnLineOut(BaseModel):
+    stop_id: str
+    stop_name: str
+    stop_lat: float
+    stop_lon: float
+    zone_id: Optional[str] = None
+    stop_sequence: int
+
+
+class LineStopsOut(BaseModel):
+    route_id: str
+    route_short_name: str
+    direction_id: int
+    destination: Optional[str] = None
+    stops: list[StopOnLineOut]
+
+
+class NearbyStopOut(BaseModel):
+    stop_id: str
+    stop_name: str
+    stop_lat: float
+    stop_lon: float
+    zone_id: Optional[str] = None
+    distance_m: int = Field(ge=0)
+
+
+class BoardDepartureOut(BaseModel):
+    route_id: str
+    route_short_name: str
+    route_color: Optional[str] = None
+    destination: Optional[str] = None
+    departure_time: str
+    eta_minutes: int = Field(ge=0)
+
+
+class DepartureBoardOut(BaseModel):
+    stop_id: str
+    stop_name: str
+    departures: list[BoardDepartureOut]
+
+
+class JourneyLegOut(BaseModel):
+    route_id: str
+    route_short_name: str
+    from_stop_id: str
+    from_stop_name: str
+    to_stop_id: str
+    to_stop_name: str
+    departure_time: str
+    arrival_time: str
+    stops_between: int
+
+
+class JourneyOut(BaseModel):
+    from_stop_id: str
+    to_stop_id: str
+    direct: bool
+    legs: list[JourneyLegOut]

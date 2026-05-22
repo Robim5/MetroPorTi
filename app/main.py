@@ -1,14 +1,16 @@
 import os
 import time
+from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 from app.database import close_db_pool, init_db_pool
-from app.routers import fares, routes, schedule, stops, vehicle
+from app.routers import fares, lines, routes, schedule, stops, vehicle
 from app.security import verify_api_key
 
 load_dotenv()
@@ -73,7 +75,13 @@ async def health(request: Request):
 
 # agrupa endpoints por tema, paragens linhas horarios etc
 app.include_router(stops.router)
+app.include_router(lines.router)
 app.include_router(routes.router)
 app.include_router(schedule.router)
 app.include_router(vehicle.router)
 app.include_router(fares.router)
+
+# painel web para testar endpoints (http://localhost:8000/testar/)
+_frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
+if _frontend_dir.is_dir():
+    app.mount("/testar", StaticFiles(directory=str(_frontend_dir), html=True), name="testar")

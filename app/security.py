@@ -23,7 +23,7 @@ def verify_api_key(request: Request) -> JSONResponse | None:
         return None
 
     path = request.url.path
-    if path in PUBLIC_PATHS:
+    if path in PUBLIC_PATHS or path.startswith("/testar"):
         return None
 
     # header (postman, apps) ou ?api_key= (testar no browser)

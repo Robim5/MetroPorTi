@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MetroPorTi — Testar API</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <div class="layout">
+    <header class="hero">
+      <img src="assets/logo.png" alt="MetroPorTi" />
+      <h1>Testar API MetroPorTi</h1>
+      <p>
+        Painel para ver se cada endpoint funciona. Clica <strong>Testar</strong> e vê o JSON em baixo brilhoso.
+      </p>
+    </header>
+
+    <section class="settings">
+      <h2>Ligação</h2>
+      <div class="field">
+        <label for="apiBase">URL da API</label>
+        <input id="apiBase" type="url" placeholder="http://localhost:8000" />
+      </div>
+      <div class="field">
+        <label for="apiKey">API Key (opcional em local se não tiveres API_KEY no .env)</label>
+        <input id="apiKey" type="password" placeholder="chave do Railway" autocomplete="off" />
+      </div>
+      <button type="button" class="btn btn-run" id="saveSettings">Guardar</button>
+      <p class="hint">
+        Em local com a API a correr: deixa a URL <code>http://localhost:8000</code>.
+        No Railway: cola o teu domínio <code>https://….up.railway.app</code>.
+      </p>
+    </section>
+
+    <nav id="tabs" class="tabs" role="tablist"></nav>
+    <div id="panels"></div>
+
+    <footer>
+      MetroPorTi - GTFS Metro do Porto   
+      <a href="/docs" style="color: var(--metro)">Swagger</a>
+    </footer>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
