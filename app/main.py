@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 from app.database import close_db_pool, init_db_pool
 from app.routers import fares, routes, schedule, stops, vehicle
@@ -15,10 +16,13 @@ load_dotenv()
 # ponto de entrada da api, monta routers e middleware
 app = FastAPI(title="Metro Porto", description="1.0.0")
 
-# limita pedidos por ip para nao rebentar o servidor
-limiter = Limiter(key_func=get_remote_address, default_limits=[os.getenv("RATE_LIMIT", "60/minute")])
+# 60/min por IP é suficiente para uma app normal
+_rate_limit = os.getenv("RATE_LIMIT", "60/minute")
+limiter = Limiter(key_func=get_remote_address, default_limits=[_rate_limit])
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# middleware que aplica o limite em todos os endpoints
+app.add_middleware(SlowAPIMiddleware)
 
 # abre pool postgres ao arrancar
 @app.on_event("startup")
@@ -60,9 +64,10 @@ async def logging_middleware(request: Request, call_next):
     return response
 
 
-# health check para deploy e monitorizacao
+# health check para deploy nao tem rate limit para o railway nao falhar probes
 @app.get("/health", tags=["system"])
-async def health():
+@limiter.exempt
+async def health(request: Request):
     return {"status": "ok"}
 
 
