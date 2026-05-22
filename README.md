@@ -83,10 +83,16 @@ Coloca os ficheiros GTFS em `gtfs_data/` (`stops.txt`, `routes.txt`, `stop_times
 
 **API Key** (opcional em local, recomendada em produção)
 
-Se `API_KEY` estiver definida no `.env`, envia em cada pedido:
+Se `API_KEY` estiver definida, envia a chave de uma destas formas:
 
+**Header** (Postman, código):
 ```http
 X-API-Key: a_tua_chave
+```
+
+**No URL** (testar no browser):
+```text
+https://BASE/stops?page=1&limit=5&api_key=a_tua_chave
 ```
 
 Rotas públicas sem chave: `/health` e `/docs`.

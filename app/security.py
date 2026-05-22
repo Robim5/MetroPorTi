@@ -26,10 +26,16 @@ def verify_api_key(request: Request) -> JSONResponse | None:
     if path in PUBLIC_PATHS:
         return None
 
-    provided = request.headers.get("X-API-Key", "").strip()
+    # header (postman, apps) ou ?api_key= (testar no browser)
+    provided = (
+        request.headers.get("X-API-Key", "").strip()
+        or request.query_params.get("api_key", "").strip()
+    )
     if provided != expected:
         return JSONResponse(
             status_code=401,
-            content={"detail": "API key inválida ou em falta. Envia o header X-API-Key."},
+            content={
+                "detail": "API key inválida ou em falta. Usa o header X-API-Key ou ?api_key= no URL.",
+            },
         )
     return None
