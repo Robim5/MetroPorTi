@@ -31,11 +31,11 @@ async def list_stops(
     offset = (page - 1) * limit
     pool = get_pool()
     async with pool.acquire() as conn:
-        total = await conn.fetchval("SELECT COUNT(*) FROM stops")
+        total = await conn.fetchval("SELECT COUNT(*) FROM metro_stops")
         rows = await conn.fetch(
             """
             SELECT stop_id, stop_name, stop_lat, stop_lon, zone_id
-            FROM stops
+            FROM metro_stops
             ORDER BY stop_name
             LIMIT $1 OFFSET $2
             """,
@@ -63,7 +63,7 @@ async def search_stops(q: str = Query(..., min_length=2, max_length=100)):
         rows = await conn.fetch(
             """
             SELECT stop_id, stop_name, stop_lat, stop_lon, zone_id
-            FROM stops
+            FROM metro_stops
             WHERE stop_name ILIKE '%' || $1 || '%'
             ORDER BY stop_name
             LIMIT 30
@@ -101,7 +101,7 @@ async def nearby_stops(
                   ))
                 )
               )::int AS distance_m
-            FROM stops
+            FROM metro_stops
             WHERE (
               6371000 * acos(
                 LEAST(1.0, GREATEST(-1.0,
@@ -137,7 +137,7 @@ async def departure_board(
     pool = get_pool()
     async with pool.acquire() as conn:
         stop = await conn.fetchrow(
-            "SELECT stop_id, stop_name FROM stops WHERE stop_id = $1",
+            "SELECT stop_id, stop_name FROM metro_stops WHERE stop_id = $1",
             stop_id,
         )
         if not stop:
@@ -179,7 +179,7 @@ async def get_stop(stop_id: str):
         row = await conn.fetchrow(
             """
             SELECT stop_id, stop_name, stop_lat, stop_lon, zone_id
-            FROM stops WHERE stop_id = $1
+            FROM metro_stops WHERE stop_id = $1
             """,
             stop_id,
         )

@@ -13,9 +13,8 @@ def _get_database_url() -> str:
     database_url = os.getenv("DATABASE_URL", "").strip()
     if not database_url:
         raise RuntimeError("DATABASE_URL nao esta defenida")
-    # neon precisa de ssl entao valida-se cedo para erro legivel
-    if "sslmode=require" not in database_url:
-        raise RuntimeError("DATABASE_URL nao esta configurada para ssl")
+    if not database_url.startswith(("postgres://", "postgresql://")):
+        raise RuntimeError("DATABASE_URL tem de ser uma ligação PostgreSQL valida")
     return database_url
 
 # cria ligacoes reutilizaveis, min 1 max 10 por pedido
@@ -27,6 +26,9 @@ async def init_db_pool() -> asyncpg.Pool:
             min_size = 1,
             max_size = 10,
             command_timeout = 30,
+            # o pooler do Supabase (Supavisor/PgBouncer em modo transacao) nao suporta
+            # prepared statements reutilizados entre ligacoes; desativa a cache
+            statement_cache_size = 0,
         )
     return _pool
 

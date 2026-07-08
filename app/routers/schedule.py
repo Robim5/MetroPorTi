@@ -20,15 +20,15 @@ LISBON_TZ = ZoneInfo("Europe/Lisbon")
 async def stop_schedule(stop_id: str):
     pool = get_pool()
     async with pool.acquire() as conn:
-        exists = await conn.fetchval("SELECT 1 FROM stops WHERE stop_id = $1", stop_id)
+        exists = await conn.fetchval("SELECT 1 FROM metro_stops WHERE stop_id = $1", stop_id)
         if not exists:
             raise HTTPException(status_code=404, detail="Paragem não encontrada.")
         rows = await conn.fetch(
             """
             SELECT r.route_id, r.route_short_name, t.direction_id, t.trip_headsign, st.departure_time
-            FROM stop_times st
-            JOIN trips t ON t.trip_id = st.trip_id
-            JOIN routes r ON r.route_id = t.route_id
+            FROM metro_stop_times st
+            JOIN metro_trips t ON t.trip_id = st.trip_id
+            JOIN metro_routes r ON r.route_id = t.route_id
             WHERE st.stop_id = $1
             ORDER BY r.route_short_name, t.direction_id, st.departure_time
             """,

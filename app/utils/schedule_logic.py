@@ -58,23 +58,23 @@ def build_upcoming_arrivals(
 ACTIVE_SERVICES_SQL = """
 WITH service_base AS (
   SELECT c.service_id, c.{weekday_col} AS runs_today
-  FROM calendar c
+  FROM metro_calendar c
   WHERE $1::date BETWEEN c.start_date AND c.end_date
 ),
 service_active AS (
   SELECT sb.service_id
   FROM service_base sb
-  LEFT JOIN calendar_dates cd
+  LEFT JOIN metro_calendar_dates cd
     ON cd.service_id = sb.service_id AND cd.date = $1::date
   WHERE (cd.exception_type = 1) OR (cd.exception_type IS NULL AND sb.runs_today = TRUE)
   EXCEPT
-  SELECT cd2.service_id FROM calendar_dates cd2
+  SELECT cd2.service_id FROM metro_calendar_dates cd2
   WHERE cd2.date = $1::date AND cd2.exception_type = 2
 )
 SELECT r.route_id, r.route_short_name, r.route_color, t.trip_id, t.trip_headsign, st.departure_time
-FROM stop_times st
-JOIN trips t ON t.trip_id = st.trip_id
-JOIN routes r ON r.route_id = t.route_id
+FROM metro_stop_times st
+JOIN metro_trips t ON t.trip_id = st.trip_id
+JOIN metro_routes r ON r.route_id = t.route_id
 JOIN service_active sa ON sa.service_id = t.service_id
 WHERE st.stop_id = $2
 ORDER BY st.departure_time
@@ -85,7 +85,7 @@ LIMIT 300
 async def fetch_upcoming_at_stop(stop_id: str, today: date, weekday_col: str):
     pool = get_pool()
     async with pool.acquire() as conn:
-        exists = await conn.fetchval("SELECT 1 FROM stops WHERE stop_id = $1", stop_id)
+        exists = await conn.fetchval("SELECT 1 FROM metro_stops WHERE stop_id = $1", stop_id)
         if not exists:
             raise HTTPException(status_code=404, detail="Paragem não encontrada.")
         sql = ACTIVE_SERVICES_SQL.format(weekday_col=weekday_col)

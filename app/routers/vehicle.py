@@ -21,8 +21,8 @@ async def vehicle_position(route_id: str = Query(..., min_length=1, max_length=2
         trip = await conn.fetchrow(
             """
             SELECT t.trip_id
-            FROM trips t
-            JOIN calendar c ON c.service_id = t.service_id
+            FROM metro_trips t
+            JOIN metro_calendar c ON c.service_id = t.service_id
             WHERE t.route_id = $1 AND $2 BETWEEN c.start_date AND c.end_date
             LIMIT 1
             """,
@@ -35,8 +35,8 @@ async def vehicle_position(route_id: str = Query(..., min_length=1, max_length=2
         rows = await conn.fetch(
             """
             SELECT st.stop_id, s.stop_name, st.departure_time, st.stop_sequence
-            FROM stop_times st
-            JOIN stops s ON s.stop_id = st.stop_id
+            FROM metro_stop_times st
+            JOIN metro_stops s ON s.stop_id = st.stop_id
             WHERE st.trip_id = $1
             ORDER BY st.stop_sequence
             """,

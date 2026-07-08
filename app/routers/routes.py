@@ -17,11 +17,11 @@ async def list_routes(page: int = Query(1, ge=1), limit: int = Query(20, ge=1, l
     pool = get_pool()
     async with pool.acquire() as conn:
         # conta total para paginacao
-        total = await conn.fetchval("SELECT COUNT(*) FROM routes")
+        total = await conn.fetchval("SELECT COUNT(*) FROM metro_routes")
         rows = await conn.fetch(
             """
             SELECT route_id, route_short_name, route_long_name, route_color, route_text_color
-            FROM routes
+            FROM metro_routes
             ORDER BY route_short_name
             LIMIT $1 OFFSET $2
             """,

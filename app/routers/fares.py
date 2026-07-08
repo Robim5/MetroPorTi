@@ -13,8 +13,8 @@ async def fare(from_zone: str = Query(...), to_zone: str = Query(...)):
         row = await conn.fetchrow(
             """
             SELECT fr.fare_id, fr.origin_id, fr.destination_id, fa.price, fa.currency_type
-            FROM fare_rules fr
-            JOIN fare_attributes fa ON fa.fare_id = fr.fare_id
+            FROM metro_fare_rules fr
+            JOIN metro_fare_attributes fa ON fa.fare_id = fr.fare_id
             WHERE fr.origin_id = $1 AND fr.destination_id = $2
             LIMIT 1
             """,

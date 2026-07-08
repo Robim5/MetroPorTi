@@ -20,7 +20,7 @@ async def line_stops(
         route = await conn.fetchrow(
             """
             SELECT route_id, route_short_name
-            FROM routes WHERE route_id = $1
+            FROM metro_routes WHERE route_id = $1
             """,
             route_id,
         )
@@ -30,7 +30,7 @@ async def line_stops(
         trip = await conn.fetchrow(
             """
             SELECT trip_id, trip_headsign
-            FROM trips
+            FROM metro_trips
             WHERE route_id = $1 AND direction_id = $2
             ORDER BY trip_id
             LIMIT 1
@@ -42,7 +42,7 @@ async def line_stops(
             trip = await conn.fetchrow(
                 """
                 SELECT trip_id, trip_headsign
-                FROM trips WHERE route_id = $1
+                FROM metro_trips WHERE route_id = $1
                 ORDER BY trip_id LIMIT 1
                 """,
                 route_id,
@@ -53,8 +53,8 @@ async def line_stops(
         rows = await conn.fetch(
             """
             SELECT st.stop_id, s.stop_name, s.stop_lat, s.stop_lon, s.zone_id, st.stop_sequence
-            FROM stop_times st
-            JOIN stops s ON s.stop_id = st.stop_id
+            FROM metro_stop_times st
+            JOIN metro_stops s ON s.stop_id = st.stop_id
             WHERE st.trip_id = $1
             ORDER BY st.stop_sequence
             """,
@@ -84,7 +84,7 @@ async def plan_journey(
     async with pool.acquire() as conn:
         stops = await conn.fetch(
             """
-            SELECT stop_id, stop_name FROM stops
+            SELECT stop_id, stop_name FROM metro_stops
             WHERE stop_id = ANY($1::text[])
             """,
             [from_stop_id, to_stop_id],
@@ -100,11 +100,11 @@ async def plan_journey(
                    st1.stop_id AS from_stop, st2.stop_id AS to_stop,
                    st1.departure_time, st2.arrival_time,
                    (st2.stop_sequence - st1.stop_sequence) AS stops_between
-            FROM stop_times st1
-            JOIN stop_times st2
+            FROM metro_stop_times st1
+            JOIN metro_stop_times st2
               ON st1.trip_id = st2.trip_id AND st1.stop_sequence < st2.stop_sequence
-            JOIN trips t ON t.trip_id = st1.trip_id
-            JOIN routes r ON r.route_id = t.route_id
+            JOIN metro_trips t ON t.trip_id = st1.trip_id
+            JOIN metro_routes r ON r.route_id = t.route_id
             WHERE st1.stop_id = $1 AND st2.stop_id = $2
             ORDER BY st1.departure_time
             LIMIT 10

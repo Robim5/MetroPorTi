@@ -52,7 +52,7 @@ async def ensure_calendar_service(conn: asyncpg.Connection, service_id: str) -> 
     """GTFS pode referenciar service_id só em calendar_dates; criamos entrada mínima."""
     await conn.execute(
         """
-        INSERT INTO calendar(
+        INSERT INTO metro_calendar(
           service_id, monday, tuesday, wednesday, thursday, friday, saturday, sunday,
           start_date, end_date
         )
@@ -104,12 +104,12 @@ async def main() -> None:
 
     conn = await asyncpg.connect(dsn=database_url)
     try:
-        print("[1/10] routes")
+        print("[1/10] metro_routes")
         await insert_batches(
             conn,
-            "routes",
+            "metro_routes",
             """
-            INSERT INTO routes(route_id, route_short_name, route_long_name, route_color, route_text_color)
+            INSERT INTO metro_routes(route_id, route_short_name, route_long_name, route_color, route_text_color)
             VALUES($1,$2,$3,$4,$5)
             ON CONFLICT(route_id) DO UPDATE SET
               route_short_name=EXCLUDED.route_short_name,
@@ -129,12 +129,12 @@ async def main() -> None:
             ),
         )
 
-        print("[2/10] calendar")
+        print("[2/10] metro_calendar")
         await insert_batches(
             conn,
-            "calendar",
+            "metro_calendar",
             """
-            INSERT INTO calendar(
+            INSERT INTO metro_calendar(
               service_id, monday, tuesday, wednesday, thursday, friday, saturday, sunday,
               start_date, end_date
             )
@@ -161,12 +161,12 @@ async def main() -> None:
             ),
         )
 
-        print("[3/10] stops")
+        print("[3/10] metro_stops")
         await insert_batches(
             conn,
-            "stops",
+            "metro_stops",
             """
-            INSERT INTO stops(stop_id, stop_code, stop_name, stop_lat, stop_lon, zone_id)
+            INSERT INTO metro_stops(stop_id, stop_code, stop_name, stop_lat, stop_lon, zone_id)
             VALUES($1,$2,$3,$4,$5,$6)
             ON CONFLICT(stop_id) DO UPDATE SET
               stop_code=EXCLUDED.stop_code, stop_name=EXCLUDED.stop_name,
@@ -185,12 +185,12 @@ async def main() -> None:
             ),
         )
 
-        print("[4/10] shapes")
+        print("[4/10] metro_shapes")
         await insert_batches(
             conn,
-            "shapes",
+            "metro_shapes",
             """
-            INSERT INTO shapes(shape_id, shape_pt_lat, shape_pt_lon, shape_pt_sequence)
+            INSERT INTO metro_shapes(shape_id, shape_pt_lat, shape_pt_lon, shape_pt_sequence)
             VALUES($1,$2,$3,$4)
             ON CONFLICT(shape_id, shape_pt_sequence) DO NOTHING
             """,
@@ -205,12 +205,12 @@ async def main() -> None:
             ),
         )
 
-        print("[5/10] fare_attributes")
+        print("[5/10] metro_fare_attributes")
         await insert_batches(
             conn,
-            "fare_attributes",
+            "metro_fare_attributes",
             """
-            INSERT INTO fare_attributes(fare_id, price, currency_type, payment_method, transfers)
+            INSERT INTO metro_fare_attributes(fare_id, price, currency_type, payment_method, transfers)
             VALUES($1,$2,$3,$4,$5)
             ON CONFLICT(fare_id) DO UPDATE SET
               price=EXCLUDED.price,
@@ -230,11 +230,11 @@ async def main() -> None:
             ),
         )
 
-        print("[6/10] calendar_dates")
+        print("[6/10] metro_calendar_dates")
         calendar_date_rows = read_rows("calendar_dates.txt")
         known_services = {
             r["service_id"]
-            for r in await conn.fetch("SELECT service_id FROM calendar")
+            for r in await conn.fetch("SELECT service_id FROM metro_calendar")
         }
         for row in calendar_date_rows:
             sid = row.get("service_id")
@@ -245,9 +245,9 @@ async def main() -> None:
 
         await insert_batches(
             conn,
-            "calendar_dates",
+            "metro_calendar_dates",
             """
-            INSERT INTO calendar_dates(service_id, date, exception_type)
+            INSERT INTO metro_calendar_dates(service_id, date, exception_type)
             VALUES($1,$2,$3)
             ON CONFLICT(service_id, date) DO UPDATE SET
               exception_type=EXCLUDED.exception_type
@@ -262,12 +262,12 @@ async def main() -> None:
             ),
         )
 
-        print("[7/10] trips")
+        print("[7/10] metro_trips")
         await insert_batches(
             conn,
-            "trips",
+            "metro_trips",
             """
-            INSERT INTO trips(
+            INSERT INTO metro_trips(
               trip_id, route_id, service_id, trip_headsign, direction_id, shape_id, wheelchair_accessible
             )
             VALUES($1,$2,$3,$4,$5,$6,$7)
@@ -290,12 +290,12 @@ async def main() -> None:
             ),
         )
 
-        print("[8/10] fare_rules")
+        print("[8/10] metro_fare_rules")
         await insert_batches(
             conn,
-            "fare_rules",
+            "metro_fare_rules",
             """
-            INSERT INTO fare_rules(fare_id, origin_id, destination_id)
+            INSERT INTO metro_fare_rules(fare_id, origin_id, destination_id)
             VALUES($1,$2,$3)
             ON CONFLICT(fare_id, origin_id, destination_id) DO NOTHING
             """,
@@ -309,12 +309,12 @@ async def main() -> None:
             ),
         )
 
-        print("[9/10] transfers")
+        print("[9/10] metro_transfers")
         await insert_batches(
             conn,
-            "transfers",
+            "metro_transfers",
             """
-            INSERT INTO transfers(from_stop_id, to_stop_id, transfer_type)
+            INSERT INTO metro_transfers(from_stop_id, to_stop_id, transfer_type)
             VALUES($1,$2,$3)
             ON CONFLICT(from_stop_id, to_stop_id) DO UPDATE SET
               transfer_type=EXCLUDED.transfer_type
@@ -329,12 +329,12 @@ async def main() -> None:
             ),
         )
 
-        print("[10/10] stop_times (ficheiro grande — pode demorar 1-3 min)")
+        print("[10/10] metro_stop_times (ficheiro grande — pode demorar 1-3 min)")
         await insert_batches(
             conn,
-            "stop_times",
+            "metro_stop_times",
             """
-            INSERT INTO stop_times(
+            INSERT INTO metro_stop_times(
               trip_id, stop_id, arrival_time, departure_time, stop_sequence, stop_headsign
             )
             VALUES($1,$2,$3,$4,$5,$6)
