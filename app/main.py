@@ -29,8 +29,13 @@ app.add_middleware(SlowAPIMiddleware)
 # abre pool postgres ao arrancar
 @app.on_event("startup")
 async def startup_event():
-    await init_db_pool()
-    
+    try:
+        await init_db_pool()
+    except Exception as exc:
+        # mensagem curta e clara no topo dos logs do Railway, antes do traceback gigante
+        print(f"[FATAL] Nao foi possivel ligar a base de dados ao arrancar: {exc}")
+        raise
+
 # fecha ligacoes ao desligar, evita lixo no neon
 @app.on_event("shutdown")
 async def shutdown_event():
