@@ -12,7 +12,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" />
   <img src="https://img.shields.io/badge/FastAPI-0.111-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/PostgreSQL-Neon-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />
   <img src="https://img.shields.io/badge/GTFS-Metro_do_Porto-00B5E2?style=flat-square" alt="GTFS" />
 </p>
 
@@ -20,7 +20,7 @@
 
 ## O que é isto
 
-O **MetroPorTi** é uma API que lê dados oficiais GTFS do Metro do Porto, guarda-os em PostgreSQL (Neon) e expõe endpoints simples para consultar paragens, linhas, horários e tarifas. Foi pensada para quem quer construir uma app ou site sem ter de descodificar ficheiros `.txt` gigantes.
+O **MetroPorTi** é uma API que lê dados oficiais GTFS do Metro do Porto, guarda-os em PostgreSQL (Supabase) e expõe endpoints simples para consultar paragens, linhas, horários e tarifas. Foi pensada para quem quer construir uma app ou site sem ter de descodificar ficheiros `.txt` gigantes.
 
 ---
 
@@ -29,7 +29,7 @@ O **MetroPorTi** é uma API que lê dados oficiais GTFS do Metro do Porto, guard
 | Camada | Tecnologia |
 |--------|------------|
 | API | FastAPI + Uvicorn |
-| Base de dados | PostgreSQL (Neon) |
+| Base de dados | PostgreSQL (Supabase) |
 | Driver async | asyncpg |
 | Dados | GTFS (Metro do Porto) |
 | Deploy | Railway |
@@ -121,7 +121,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Copia `.env.example` para `.env` e preenche `DATABASE_URL` (Neon, com `?sslmode=require`).
+Copia `.env.example` para `.env` e preenche `DATABASE_URL` com a connection string do Supabase (usa o pooler em modo *transaction*, porta `6543`).
 
 ```powershell
 python scripts/init_db.py
@@ -215,7 +215,7 @@ Rotas públicas sem chave: `/health` e `/docs`.
 
 | Variável | Valor |
 |----------|--------|
-| `DATABASE_URL` | Connection string Neon com `?sslmode=require` |
+| `DATABASE_URL` | Connection string do Supabase (pooler Supavisor, modo *transaction*) |
 | `API_KEY` | Chave forte (gera com `python -c "import secrets; print(secrets.token_urlsafe(32))"`) |
 | `APP_ENV` | `production` |
 | `ALLOWED_ORIGINS` | URL do teu frontend |
@@ -264,7 +264,7 @@ Este projeto está licenciado sob a **[MIT License](LICENSE)**.
 
 <p align="center">
   <sub>
-    Dados GTFS do Metro do Porto (feed de 7 de abril de 2026) · FastAPI · Neon · Railway<br/>
+    Dados GTFS do Metro do Porto (feed de 7 de abril de 2026) · FastAPI · Supabase · Railway<br/>
     Última atualização: 21 de maio de 2026
   </sub>
 </p>
